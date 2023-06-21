@@ -1,0 +1,1507 @@
+<style>
+    /* Custom Styles */
+    .container {
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f8f8f8;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .form-group input[type="text"],
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .form-group .btn {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .error-message {
+        color: red;
+        font-size: 14px;
+    }
+</style>
+
+<div class="container manage-tache">
+    <h1>{{ tache.id|default_if_none:"Create New Tache" }}</h1>
+    <form id="tache-form" class="popup-form">
+        {% csrf_token %}
+        <input type="hidden" id="tache-id" value="{{ tache.id }}">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="{{ tache.name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="5" required>{{ tache.description }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select id="status" name="status" required>
+                <option value="">Select Status</option>
+                <option value="en_cours" {% if tache.status == 'en_cours' %}selected{% endif %}>En Cours</option>
+                <option value="complet" {% if tache.status == 'complet' %}selected{% endif %}>Complet</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="deadline">Deadline:</label>
+            <input type="datetime-local" id="deadline" name="deadline" value="{{ tache.deadline|date:'Y-m-d\TH:i' }}"
+                required>
+        </div>
+        <div class="form-group">
+            <label for="projet">projet:</label>
+            <select id="projet" name="projet" required>
+                <option value="">Select projet</option>
+                {% for projet in projets %}
+                    <option value="{{ projet.id }}"
+                            {% if tache.projet and tache.projet.id == projet.id %}selected{% endif %}>
+                        {{ projet.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <button class="btn save-button">Save</button>
+            <button class="btn cancel-button">Cancel</button>
+        </div>
+    </form>
+    <p class="error-message" id="error-message"></p>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.save-button').on('click', function (e) {
+            e.preventDefault();
+            var tacheId = $('#tache-id').val();
+            var url = tacheId ? '/update_tache/' + tacheId + '/' : '/save_tache/';
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: $('#tache-form').serialize(),
+                success: function (response) {
+                    if (response.status === 'success') {
+                        location.reload(); // Reload the page to reflect the updated data
+                    } else {
+                        $('#error-message').text('An error occurred. Please try again.');
+                    }
+                },
+                error: function () {
+                    $('#error-message').text('An error occurred. Please try again.');
+                }
+            });
+        });
+
+        $('.cancel-button').on('click', function (e) {
+            e.preventDefault();
+            location.reload(); // Reload the page to cancel any changes made
+        });
+    });
+</script>
+
+<!--<style>
+    /* Custom Styles */
+    .container {
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f8f8f8;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .form-group input[type="text"],
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .form-group .btn {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .error-message {
+        color: red;
+        font-size: 14px;
+    }
+</style>
+
+<div class="container manage-tache">
+    <h1>{{ tache.id|default_if_none:"Create New Tache" }}</h1>
+    <form id="tache-form" class="popup-form">
+        {% csrf_token %}
+        <input type="hidden" id="tache-id" value="{{ tache.id }}">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="{{ tache.name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="5" required>{{ tache.description }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select id="status" name="status" required>
+                <option value="">Select Status</option>
+                <option value="en_cours" {% if tache.status == 'en_cours' %}selected{% endif %}>En Cours</option>
+                <option value="complet" {% if tache.status == 'complet' %}selected{% endif %}>Complet</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="deadline">Deadline:</label>
+            <input type="datetime-local" id="deadline" name="deadline"
+                value="{{ tache.deadline|date:'Y-m-d\TH:i' }}" required>
+        </div>
+        <div class="form-group">
+            <label for="projet">projet:</label>
+            <select id="projet" name="projet" required>
+                <option value="">Select projet</option>
+                {% for projet in projets %}
+                <option value="{{ projet.id }}" {% if tache.projet and tache.projet.id == projet.id %}selected{% endif %}>{{ projet.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <button class="btn save-button">Save</button>
+            <button class="btn cancel-button">Cancel</button>
+        </div>
+    </form>
+    <p class="error-message" id="error-message"></p>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Initialize select2 for the projet field
+        $('#projet').select2();
+
+        $('.save-button').on('click', function (e) {
+            e.preventDefault();
+            var tacheId = $('#tache-id').val();
+            var url = tacheId ? '/update_tache/' + tacheId + '/' : '/save_tache/';
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: $('#tache-form').serialize(),
+                success: function (response) {
+                    if (response.status === 'success') {
+                        location.reload(); // Reload the page to reflect the updated data
+                    } else {
+                        $('#error-message').text('An error occurred. Please try again.');
+                    }
+                },
+                error: function () {
+                    $('#error-message').text('An error occurred. Please try again.');
+                }
+            });
+        });
+
+        $('.cancel-button').on('click', function (e) {
+            e.preventDefault();
+            location.reload(); // Reload the page to cancel any changes made
+        });
+    });
+</script>
+-->
+<!--
+<style>
+    /* Custom Styles */
+    .container {
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f8f8f8;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .form-group input[type="text"],
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .form-group .btn {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .error-message {
+        color: red;
+        font-size: 14px;
+    }
+
+
+    
+</style>
+
+<div class="container manage-tache">
+    <h1>{{ tache.id|default_if_none:"Create New Tache" }}</h1>
+    <form id="tache-form" class="popup-form">
+        {% csrf_token %}
+        <input type="hidden" id="tache-id" value="{{ tache.id }}">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="{{ tache.name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="5" required>{{ tache.description }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select id="status" name="status" required>
+                <option value="">Select Status</option>
+                <option value="en_cours" {% if tache.status == 'en_cours' %}selected{% endif %}>En Cours</option>
+                <option value="complet" {% if tache.status == 'complet' %}selected{% endif %}>Complet</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="deadline">Deadline:</label>
+            <input type="datetime-local" id="deadline" name="deadline" value="{{ tache.deadline|date:'Y-m-d\TH:i' }}"
+                required>
+        </div>
+        <div class="form-group">
+            <button class="btn save-button">Save</button>
+            <button class="btn cancel-button">Cancel</button>
+        </div>
+    </form>
+    <p class="error-message" id="error-message"></p>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.save-button').on('click', function (e) {
+            e.preventDefault();
+            var tacheId = $('#tache-id').val();
+            var url = tacheId ? '/update_tache/' + tacheId + '/' : '/save_tache/';
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: $('#tache-form').serialize(),
+                success: function (response) {
+                    if (response.status === 'success') {
+                        location.reload(); // Reload the page to reflect the updated data
+                    } else {
+                        $('#error-message').text('An error occurred. Please try again.');
+                    }
+                },
+                error: function () {
+                    $('#error-message').text('An error occurred. Please try again.');
+                }
+            });
+        });
+
+        $('.cancel-button').on('click', function (e) {
+            e.preventDefault();
+            location.reload(); // Reload the page to cancel any changes made
+        });
+    });
+</script>
+
+<!--<style>
+    /* Custom Styles */
+    .container {
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f8f8f8;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .form-group input[type="text"],
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .form-group .btn {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .error-message {
+        color: red;
+        font-size: 14px;
+    }
+
+    /* Hide save and cancel buttons */
+    .manage-tache .save-button,
+    .manage-tache .cancel-button {
+        display: none;
+    }
+</style>
+
+<div class="container manage-tache">
+    <h1>{{ tache.id|default_if_none:"Create New Tache" }}</h1>
+    <form id="tache-form" class="popup-form">
+        {% csrf_token %}
+        <input type="hidden" id="tache-id" value="{{ tache.id }}">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="{{ tache.name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="5" required>{{ tache.description }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select id="status" name="status" required>
+                <option value="">Select Status</option>
+                <option value="en_cours" {% if tache.status == 'en_cours' %}selected{% endif %}>En Cours</option>
+                <option value="complet" {% if tache.status == 'complet' %}selected{% endif %}>Complet</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="deadline">Deadline:</label>
+            <input type="datetime-local" id="deadline" name="deadline" value="{{ tache.deadline|date:'Y-m-d\TH:i' }}"
+                required>
+        </div>
+        <div class="form-group">
+            <button type="button" class="btn save-button">Save</button>
+            <button type="button" class="btn cancel-button">Cancel</button>
+        </div>
+    </form>
+    <p class="error-message" id="error-message"></p>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.save-button').on('click', function (e) {
+            e.preventDefault();
+            var tacheId = $('#tache-id').val();
+            var url = tacheId ? '/update_tache/' + tacheId + '/' : '/save_tache/';
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: $('#tache-form').serialize(),
+                success: function (response) {
+                    if (response.status === 'success') {
+                        location.reload(); // Reload the page to reflect the updated data
+                    } else {
+                        $('#error-message').text('An error occurred. Please try again.');
+                    }
+                },
+                error: function () {
+                    $('#error-message').text('An error occurred. Please try again.');
+                }
+            });
+        });
+
+        $('.cancel-button').on('click', function (e) {
+            e.preventDefault();
+            var tacheId = $('#tache-id').val();
+            if (tacheId) {
+                // If the tache already exists (in edit mode), redirect to the tache detail page
+                window.location.href = '/tache_detail/' + tacheId + '/';
+            } else {
+                // If it's a new tache (in create mode), redirect to the tache list page
+                window.location.href = '/tache_list/';
+            }
+        });
+    });
+</script>
+
+
+<!--<style>
+    /* Custom Styles */
+    .container {
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f8f8f8;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .form-group input[type="text"],
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .form-group .btn {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .error-message {
+        color: red;
+        font-size: 14px;
+    }
+
+    /* Hide save and cancel buttons */
+    .manage-tache .save-button,
+    .manage-tache .cancel-button {
+        display: none;
+    }
+</style>
+
+<div class="container manage-tache">
+    <h1>{{ tache.id|default_if_none:"Create New Tache" }}</h1>
+    <form id="tache-form" class="popup-form">
+        {% csrf_token %}
+        <input type="hidden" id="tache-id" value="{{ tache.id }}">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="{{ tache.name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="5" required>{{ tache.description }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select id="status" name="status" required>
+                <option value="">Select Status</option>
+                <option value="en_cours" {% if tache.status == 'en_cours' %}selected{% endif %}>En Cours</option>
+                <option value="complet" {% if tache.status == 'complet' %}selected{% endif %}>Complet</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="deadline">Deadline:</label>
+            <input type="datetime-local" id="deadline" name="deadline" value="{{ tache.deadline|date:'Y-m-d\TH:i' }}"
+                required>
+        </div>
+    </form>
+    <p class="error-message" id="error-message"></p>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.save-data').on('click', function (e) {
+            e.preventDefault();
+            var tacheId = $('#tache-id').val();
+            var url = tacheId ? '/update_tache/' + tacheId + '/' : '/save_tache/';
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: $('#tache-form').serialize(),
+                success: function (response) {
+                    if (response.status === 'success') {
+                        location.reload(); // Reload the page to reflect the updated data
+                    } else {
+                        $('#error-message').text('An error occurred. Please try again.');
+                    }
+                },
+                error: function () {
+                    $('#error-message').text('An error occurred. Please try again.');
+                }
+            });
+        });
+    });
+</script>
+
+
+<!--<style>
+    /* Custom Styles */
+    .container {
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f8f8f8;
+    }
+  
+    .form-group {
+      margin-bottom: 20px;
+    }
+  
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+  
+    .form-group input[type="text"],
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+  
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+  
+    .form-group .btn {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+  
+    .error-message {
+      color: red;
+      font-size: 14px;
+    }
+  </style>
+  
+  <div class="container">
+    <h1>{{ tache.id|default_if_none:"Create New Tache" }}</h1>
+    <form id="tache-form" class="popup-form">
+      {% csrf_token %}
+      <input type="hidden" id="tache-id" value="{{ tache.id }}">
+      <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="{{ tache.name }}" required>
+      </div>
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" rows="5" required>{{ tache.description }}</textarea>
+      </div>
+      <div class="form-group">
+        <label for="status">Status:</label>
+        <select id="status" name="status" required>
+          <option value="">Select Status</option>
+          <option value="en_cours" {% if tache.status == 'en_cours' %}selected{% endif %}>En Cours</option>
+          <option value="complet" {% if tache.status == 'complet' %}selected{% endif %}>Complet</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="deadline">Deadline:</label>
+        <input type="datetime-local" id="deadline" name="deadline" value="{{ tache.deadline|date:'Y-m-d\TH:i' }}" required>
+      </div>
+    </form>
+    <p class="error-message" id="error-message"></p>
+  </div>
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('.save-data').on('click', function (e) {
+        e.preventDefault();
+        var tacheId = $('#tache-id').val();
+        var url = tacheId ? '/update_tache/' + tacheId + '/' : '/save_tache/';
+        $.ajax({
+          type: 'POST',
+          url: url,
+          data: $('#tache-form').serialize(),
+          success: function (response) {
+            if (response.status === 'success') {
+              location.reload(); // Reload the page to reflect the updated data
+            } else {
+              $('#error-message').text('An error occurred. Please try again.');
+            }
+          },
+          error: function () {
+            $('#error-message').text('An error occurred. Please try again.');
+          }
+        });
+      });
+    });
+  </script>
+<---
+<style>
+    /* Custom Styles */
+    .container {
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f8f8f8;
+    }
+  
+    .form-group {
+      margin-bottom: 20px;
+    }
+  
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+  
+    .form-group input[type="text"],
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+  
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+  
+    .form-group .btn {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+  
+    .error-message {
+      color: red;
+      font-size: 14px;
+    }
+  </style>
+  
+  <div class="container">
+    <h1>{{ tache.id|default_if_none:"Create New Tache" }}</h1>
+    <form id="tache-form" class="popup-form">
+      {% csrf_token %}
+      <input type="hidden" id="tache-id" value="{{ tache.id }}">
+      <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="{{ tache.name }}" required>
+      </div>
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" rows="5" required>{{ tache.description }}</textarea>
+      </div>
+      <div class="form-group">
+        <label for="status">Status:</label>
+        <select id="status" name="status" required>
+          <option value="">Select Status</option>
+          <option value="en_cours" {% if tache.status == 'en_cours' %}selected{% endif %}>En Cours</option>
+          <option value="complet" {% if tache.status == 'complet' %}selected{% endif %}>Complet</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="deadline">Deadline:</label>
+        <input type="datetime-local" id="deadline" name="deadline" value="{{ tache.deadline|date:'Y-m-d\TH:i' }}" required>
+      </div>
+    </form>
+    <p class="error-message" id="error-message"></p>
+  </div>
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('.save-data').on('click', function (e) {
+        e.preventDefault();
+        var tacheId = $('#tache-id').val();
+        var url = tacheId ? '/update_tache/' + tacheId + '/' : '/save_tache/';
+        $.ajax({
+          type: 'POST',
+          url: url,
+          data: $('#tache-form').serialize(),
+          success: function (response) {
+            if (response.status === 'success') {
+              location.reload(); // Reload the page to reflect the updated data
+            } else {
+              $('#error-message').text('An error occurred. Please try again.');
+            }
+          },
+          error: function () {
+            $('#error-message').text('An error occurred. Please try again.');
+          }
+        });
+      });
+    });
+  </script>
+  
+<!--<style>
+    /* Custom Styles */
+    .container {
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f8f8f8;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .form-group input[type="text"],
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .form-group .btn {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .error-message {
+        color: red;
+        font-size: 14px;
+    }
+</style>
+
+<div class="container">
+    <h1>{{ tache.id|default_if_none:"Create New Tache" }}</h1>
+    <form id="tache-form">
+        {% csrf_token %}
+        <input type="hidden" id="tache-id" value="{{ tache.id }}">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="{{ tache.name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="5" required>{{ tache.description }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select id="status" name="status" required>
+                <option value="">Select Status</option>
+                <option value="en_cours" {% if tache.status == 'en_cours' %}selected{% endif %}>En Cours</option>
+                <option value="complet" {% if tache.status == 'complet' %}selected{% endif %}>Complet</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="deadline">Deadline:</label>
+            <input type="datetime-local" id="deadline" name="deadline" value="{{ tache.deadline|date:'Y-m-d\TH:i' }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+    <p class="error-message" id="error-message"></p>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#tache-form').on('submit', function (e) {
+            e.preventDefault();
+            var tacheId = $('#tache-id').val();
+            var url = tacheId ? '/update_tache/' + tacheId + '/' : '/save_tache/';
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: $('#tache-form').serialize(),
+                success: function (response) {
+                    if (response.status === 'success') {
+                        location.reload(); // Reload the page to reflect the updated data
+                    } else {
+                        $('#error-message').text('An error occurred. Please try again.');
+                    }
+                },
+                error: function () {
+                    $('#error-message').text('An error occurred. Please try again.');
+                }
+            });
+        });
+    });
+</script>
+-->
+<!--{% load humanize %}
+<style>
+    /* Custom Styles */
+    .container {
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f8f8f8;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .form-group input[type="text"],
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .form-group .btn {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .error-message {
+        color: red;
+        font-size: 14px;
+    }
+</style>
+
+<div class="container">
+    <h1>{{ tache.id|default_if_none:"Create New Tache" }}</h1>
+    <form id="tache-form">
+        {% csrf_token %}
+        <input type="hidden" id="tache-id" value="{{ tache.id }}">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="{{ tache.name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="5" required>{{ tache.description }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select id="status" name="status" required>
+                <option value="">Select Status</option>
+                <option value="en_cours" {% if tache.status == 'en_cours' %}selected{% endif %}>En Cours</option>
+                <option value="complet" {% if tache.status == 'complet' %}selected{% endif %}>Complet</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="deadline">Deadline:</label>
+            <input type="datetime-local" id="deadline" name="deadline" value="{{ tache.deadline|date:'Y-m-d\TH:i' }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+    <p class="error-message" id="error-message"></p>
+    {% if tache.id %}
+        <button id="delete-button" class="btn btn-danger">Delete</button>
+    {% endif %}
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#tache-form').on('submit', function (e) {
+            e.preventDefault();
+            var tacheId = $('#tache-id').val();
+            var url = tacheId ? '/update_tache/' + tacheId + '/' : '/save_tache/';
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: $('#tache-form').serialize(),
+                success: function (response) {
+                    if (response.status === 'success') {
+                        location.reload(); // Reload the page to reflect the updated data
+                    } else {
+                        $('#error-message').text('An error occurred. Please try again.');
+                    }
+                },
+                error: function () {
+                    $('#error-message').text('An error occurred. Please try again.');
+                }
+            });
+        });
+
+        // Handle delete button click
+        $('#delete-button').on('click', function () {
+            var tacheId = $('#tache-id').val();
+            var url = '/delete_tache/' + tacheId + '/';
+            if (confirm('Are you sure you want to delete this tache?')) {
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            location.href = '/manage_taches/'; // Redirect to tache list page after successful deletion
+                        } else {
+                            alert('An error occurred. Please try again.');
+                        }
+                    },
+                    error: function () {
+                        alert('An error occurred. Please try again.');
+                    }
+                });
+            }
+        });
+    });
+</script>
+-->
+<!--{% load humanize %}
+<style>
+    /* Custom Styles */
+    .container-fluid {
+        margin: 20px;
+    }
+
+    .tache-details {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .tache-details dt {
+        font-weight: bold;
+    }
+
+    .tache-list {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .tache-list li {
+        margin-bottom: 10px;
+    }
+
+    .tache-form input[type="text"],
+    .tache-form textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .tache-form select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .tache-form .btn {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .error-message {
+        color: red;
+    }
+</style>
+
+<div class="container-fluid">
+    <h1>Manage Tache</h1>
+    <div class="tache-details">
+        <dl class="row">
+            <dt>ID</dt>
+            <dd>{{ tache.id }}</dd>
+            <dt>Name</dt>
+            <dd>{{ tache.name }}</dd>
+            <dt>Description</dt>
+            <dd>{{ tache.description }}</dd>
+            <dt>Status</dt>
+            <dd>{{ tache.status }}</dd>
+            <dt>Deadline</dt>
+            <dd>{{ tache.deadline }}</dd>
+        </dl>
+    </div>
+
+    <h2>{{ tache.id|default_if_none:"Create New Tache" }}</h2>
+    <form id="tache-form">
+        {% csrf_token %}
+        <input type="hidden" id="tache-id" value="{{ tache.id }}">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" value="{{ tache.name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="5" required>{{ tache.description }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status" required>
+                <option value="">Select Status</option>
+                <option value="en_cours" {% if tache.status == 'en_cours' %}selected{% endif %}>En Cours</option>
+                <option value="complet" {% if tache.status == 'complet' %}selected{% endif %}>Complet</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="deadline">Deadline</label>
+            <input type="datetime-local" id="deadline" name="deadline" value="{{ tache.deadline|date:'Y-m-d\TH:i' }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+    <p class="error-message" id="error-message"></p>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#tache-form').on('submit', function (e) {
+            e.preventDefault();
+            var tacheId = $('#tache-id').val();
+            var url = tacheId ? '/update_tache/' + tacheId + '/' : '/save_tache/';
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: $('#tache-form').serialize(),
+                success: function (response) {
+                    if (response.status === 'success') {
+                        location.reload(); // Reload the page to reflect the updated data
+                    } else {
+                        $('#error-message').text('An error occurred. Please try again.');
+                    }
+                },
+                error: function () {
+                    $('#error-message').text('An error occurred. Please try again.');
+                }
+            });
+        });
+    });
+</script>
+-->
+
+<!--
+<style>
+    /* Custom Styles */
+    .container-fluid {
+        margin: 20px;
+    }
+
+    .tache-details {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .tache-details dt {
+        font-weight: bold;
+    }
+
+    .tache-list {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .tache-list li {
+        margin-bottom: 10px;
+    }
+
+    .tache-form input[type="text"],
+    .tache-form textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .tache-form select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .tache-form .btn {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .error-message {
+        color: red;
+    }
+</style>
+
+<div class="container-fluid">
+    <h1>Manage Tache</h1>
+    <div class="tache-details">
+        <dl class="row">
+            <dt>ID</dt>
+            <dd>{{ tache.id }}</dd>
+            <dt>Name</dt>
+            <dd>{{ tache.name }}</dd>
+            <dt>Description</dt>
+            <dd>{{ tache.description }}</dd>
+            <dt>Status</dt>
+            <dd>{{ tache.get_status_display }}</dd>
+            <dt>Deadline</dt>
+            <dd>{{ tache.deadline }}</dd>
+        </dl>
+    </div>
+
+    <h2>{% if tache.id %}Update Tache{% else %}Create New Tache{% endif %}</h2>
+    <form id="tache-form">
+        {% csrf_token %}
+        <input type="hidden" id="tache-id" value="{{ tache.id }}">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" value="{{ tache.name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="5" required>{{ tache.description }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status" required>
+                <option value="">Select Status</option>
+                {% for status in tache.get_status_choices %}
+                <option value="{{ status.0 }}" {% if tache.status == status.0 %}selected{% endif %}>{{ status.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="deadline">Deadline</label>
+            <input type="datetime-local" id="deadline" name="deadline" value="{{ tache.deadline|date:'Y-m-d\TH:i' }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+    <p class="error-message" id="error-message"></p>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#tache-form').on('submit', function (e) {
+            e.preventDefault();
+            var tacheId = $('#tache-id').val();
+            var url = tacheId ? '/update_tache/' + tacheId + '/' : '/save_tache/';
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: $('#tache-form').serialize(),
+                success: function (response) {
+                    if (response.status === 'success') {
+                        location.reload(); // Reload the page to reflect the updated data
+                    } else {
+                        $('#error-message').text('An error occurred. Please try again.');
+                    }
+                },
+                error: function () {
+                    $('#error-message').text('An error occurred. Please try again.');
+                }
+            });
+        });
+    });
+</script>
+-->
+
+<!--
+{% load humanize %}
+<style>
+    /* Custom Styles */
+    .container-fluid {
+        margin: 20px;
+    }
+
+    .tache-details {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .tache-details dt {
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    .tache-details dd {
+        margin-bottom: 10px;
+    }
+
+    .close-btn {
+        margin-top: 20px;
+    }
+
+    .form-container {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .error-message {
+        color: red;
+        margin-top: 10px;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="form-container">
+        <h2>Add/Update Tache</h2>
+        <form id="tache-form">
+            {% csrf_token %}
+            <input type="hidden" id="tache-id" value="{{ tache.id }}">
+            <div class="mb-3">
+                <label for="name" class="form-label">Tache Name</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ tache.name }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" required>{{ tache.description }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-control" id="status" name="status" required>
+                    <option value="en_cours" {% if tache.status == "en_cours" %}selected{% endif %}>En Cours</option>
+                    <option value="complet" {% if tache.status == "complet" %}selected{% endif %}>Complet</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="deadline" class="form-label">Deadline</label>
+                <input type="datetime-local" class="form-control" id="deadline" name="deadline" value="{{ tache.deadline|date:'Y-m-d\TH:i' }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            {% if tache.id %}
+                <button type="button" class="btn btn-danger" id="delete-tache-btn">Delete</button>
+            {% endif %}
+        </form>
+        <div class="error-message" id="error-message"></div>
+    </div>
+
+    <div class="tache-details">
+        <dl>
+            <dt class="mdc-typography mdc-theme--primary">Tache Name</dt>
+            <dd class="ps-3 fw-bolder">{{ tache.name }}</dd>
+
+            <dt class="mdc-typography mdc-theme--primary">Description</dt>
+            <dd class="ps-3 fw-bolder">{{ tache.description }}</dd>
+
+            <dt class="mdc-typography mdc-theme--primary">Status</dt>
+            <dd class="ps-3 fw-bolder">{{ tache.status }}</dd>
+
+            <dt class="mdc-typography mdc-theme--primary">Deadline</dt>
+            <dd class="ps-3 fw-bolder">{{ tache.deadline|date:'M d, Y H:i:s' }}</dd>
+
+            <dt class="mdc-typography mdc-theme--primary">Date Added</dt>
+            <dd class="ps-3 fw-bolder">{{ tache.date_added|date:'M d, Y H:i:s' }}</dd>
+
+            <dt class="mdc-typography mdc-theme--primary">Last Updated</dt>
+            <dd class="ps-3 fw-bolder">{{ tache.date_updated|date:'M d, Y H:i:s' }}</dd>
+        </dl>
+    </div>
+
+    <div class="d-flex justify-content-end close-btn">
+        <button class="btn btn-primary" type="button" data-bs-dismiss="modal">
+            <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">close</i>
+            Close
+        </button>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#tache-form').on('submit', function (e) {
+            e.preventDefault();
+            var tacheId = $('#tache-id').val();
+            var url = tacheId ? '/update_tache/' + tacheId + '/' : '/save_tache/';
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: $(this).serialize(),
+                success: function (response) {
+                    if (response.status === 'success') {
+                        location.reload();
+                    } else {
+                        $('#error-message').text('Failed to save tache.');
+                    }
+                },
+                error: function () {
+                    $('#error-message').text('An error occurred while saving tache.');
+                }
+            });
+        });
+
+        $('#delete-tache-btn').on('click', function () {
+            var confirmDelete = confirm('Are you sure you want to delete this tache?');
+            if (confirmDelete) {
+                var tacheId = $('#tache-id').val();
+                $.ajax({
+                    type: 'POST',
+                    url: '/delete_tache/',
+                    data: { 'id': tacheId },
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            location.href = '/manage_taches/';
+                        } else {
+                            $('#error-message').text('Failed to delete tache.');
+                        }
+                    },
+                    error: function () {
+                        $('#error-message').text('An error occurred while deleting tache.');
+                    }
+                });
+            }
+        });
+    });
+</script>

@@ -1,0 +1,158 @@
+<div class="container-fluid">
+    <form action="" id="employee-form">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{% if employee.pk %}{{employee.pk}}{% endif %}">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="code" class="control-label">Employee ID/Code</label>
+                    <input type="text" name="code" id="code" class="form-control form-control-sm rounded-0" value="{% if employee.code %}{{employee.code}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="firstname" class="control-label">First Name</label>
+                    <input type="text" name="firstname" id="firstname" class="form-control form-control-sm rounded-0" value="{% if employee.firstname %}{{employee.firstname}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="middlename" class="control-label">Middle Name</label>
+                    <input type="text" name="middlename" id="middlename" class="form-control form-control-sm rounded-0" value="{% if employee.middlename %}{{employee.middlename}}{% endif %}">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="lastname" class="control-label">Last Name</label>
+                    <input type="text" name="lastname" id="lastname" class="form-control form-control-sm rounded-0" value="{% if employee.lastname %}{{employee.lastname}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="gender" class="control-label">Gender</label>
+                    <select name="gender" id="gender" class="form-control form-control-sm rounded-0" required>
+                        {% if employee.gender and employee.gender == 'Male' %}
+                        <option selected>Male</option>
+                        {% else %}
+                        <option>Male</option>
+                        {% endif %}
+            
+                        {% if employee.gender and employee.gender == 'Female' %}
+                        <option selected>Female</option>
+                        {% else %}
+                        <option>Female</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="dob" class="control-label">Birthday</label>
+                    <input type="date" name="dob" id="dob" class="form-control form-control-sm rounded-0" value="{% if employee.dob %}{{ employee.dob|date:'Y-m-d' }}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="email" class="control-label">Email</label>
+                    <input type="email" name="email" id="email" class="form-control form-control-sm rounded-0" value="{% if employee.email %}{{employee.email}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="contact" class="control-label">Contact #</label>
+                    <input type="text" name="contact" id="contact" class="form-control form-control-sm rounded-0" value="{% if employee.contact %}{{employee.contact}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="address" class="control-label">Address</label>
+                    <textarea rows="3" name="address" id="address" class="form-control form-control-sm rounded-0" required>{% if employee.address %}{{employee.address}}{% endif %}</textarea>
+                </div>
+            </div>
+            <div class="form-group mb-3">
+                <label for="projet_id" class="control-label">Projet</label>
+                <select name="projet_id" id="projet_id" class="form-select form-select-sm rounded-0" required>
+                    {% if not employee.projet_id %}
+                        <option value="" disabled selected>Please Select Here</option>
+                    {% else %}
+                        <option value="" disabled>Please Select Here</option>
+                    {% endif %}
+                    {% for projet in projets %}
+                        {% if employee.projet_id and employee.projet_id == projet.pk %}
+                            <option value="{{ projet.pk }}" selected>{{ projet.name }}</option>
+                        {% else %}
+                            <option value="{{ projet.pk }}">{{ projet.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            
+                <div class="form-group mb-3">
+                    <label for="date_hired" class="control-label">Date Hired</label>
+                    <input type="date" name="date_hired" id="date_hired" class="form-control form-control-sm rounded-0" value="{% if employee.date_hired %}{{ employee.date_hired|date:'Y-m-d' }}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="salary" class="control-label">Monthly Salary</label>
+                    <input type="number" step="any" name="salary" id="salary" class="form-control form-control-sm rounded-0" value="{% if employee.salary %}{{employee.salary}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="status" class="control-label">Status</label>
+                    <select name="status" id="status" class="form-select form-select-sm rounded-0" required>
+                        {% if employee.status == 1 %}
+                        <option value="1" selected >In Progress</option>
+                        {% else %}
+                        <option value="1" >In Progress</option>
+                        {% endif %}
+            
+                        {% if employee.status == 0 %}
+                        <option value="0" selected>Completed</option>
+                        {% else %}
+                        <option value="0">Completed</option>
+                        {% endif %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-12">
+                
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(function() {
+        $('#employee-form').submit(function(e) {
+            e.preventDefault();
+            var _this = $(this)
+            $('.err-msg').remove();
+            var el = $('<div>')
+            el.addClass("alert alert-danger err-msg")
+            el.hide()
+            if (_this[0].checkValidity() == false) {
+                _this[0].reportValidity();
+                return false;
+            }
+            start_loader();
+            $.ajax({
+                headers: {
+                    "X-CSRFToken": '{{ csrf_token }}'
+                },
+                url: "{% url 'save-employee-page' %}",
+                data: new FormData($(this)[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST',
+                dataType: 'json',
+                error: err => {
+                    console.log(err)
+                    alert_toast("An error occurred", 'error');
+                    end_loader();
+                },
+                success: function(resp) {
+                    if (typeof resp == 'object' && resp.status == 'success') {
+                        el.removeClass("alert alert-danger err-msg")
+                        location.reload()
+                    } else if (resp.status == 'failed' && !!resp.msg) {
+                        el.text(resp.msg)
+                    } else {
+                        el.text("An error occurred", 'error');
+                        end_loader();
+                        console.err(resp)
+                    }
+                    _this.prepend(el)
+                    el.show('slow')
+                    $("html, body, .modal").scrollTop(0);
+                    end_loader()
+                }
+            })
+        })
+    })
+</script>

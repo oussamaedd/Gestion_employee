@@ -1,0 +1,160 @@
+{% extends "employee_information/base.html" %} 
+{% block pageContent %}
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card py-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">Performance List</h4>
+            <button id="update-performance-btn" class="btn btn-primary">Update Performance</button>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <colgroup>
+                    <col width="5%">
+                    <col width="30%">
+                    <col width="30%">
+                    <col width="30%">
+                    <col width="20%">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="text-center py-1">#</th>
+                        <th class="text-center py-1">Employee</th>
+                        <th class="text-center py-1">Projet</th>
+                        <th class="text-center py-1">Tache Effectue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for performance in performances %}
+                    <tr>
+                        <td class="px-2 py-1 text-center">{{ forloop.counter }}</td>
+                        <td class="px-2 py-1 text-start">{{ performance.employee.firstname }} {{ performance.employee.lastname }}</td>
+                        <td class="px-2 py-1 text-start">{{ performance.tache.projet.name }}</td>
+                        <td class="px-2 py-1 text-center">{{ performance.tache_effectue }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('update-performance-btn').addEventListener('click', function() {
+        // Send an AJAX request to update the performance
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '{% url "update_performance" %}');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                // Reload the page to reflect the updated performance data
+                location.reload();
+            }
+        };
+        xhr.send();
+    });
+</script>
+
+{% endblock pageContent %}
+
+<!--
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card py-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">Employee Information</h4>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <colgroup>
+                    <col width="5%">
+                    <col width="30%">
+                    <col width="30%">
+                    <col width="30%">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="text-center py-1">#</th>
+                        <th class="text-center py-1">Employee</th>
+                        <th class="text-center py-1">Project</th>
+                        <th class="text-center py-1">Task</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="px-2 py-1 text-center">1</td>
+                        <td class="px-2 py-1 text-start">Oussama</td>
+                        <td class="px-2 py-1 text-start">Gestion Employee</td>
+                        <td class="px-2 py-1 text-center">Linked Tables</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<!--
+
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card py-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">Performance List</h4>
+            <button id="update-performance-btn" class="btn btn-primary">Update Performance</button>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <colgroup>
+                    <col width="5%">
+                    <col width="30%">
+                    <col width="30%">
+                    <col width="30%">
+                    <col width="20%">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="text-center py-1">#</th>
+                        <th class="text-center py-1">Employee</th>
+                        <th class="text-center py-1">Projet</th>
+                        <th class="text-center py-1">Tache Effectue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for performance in performances %}
+                    <tr>
+                        <td class="px-2 py-1 text-center">{{ forloop.counter }}</td>
+                        <td class="px-2 py-1 text-start">{{ performance.employee.firstname }} {{ performance.employee.lastname }}</td>
+                        <td class="px-2 py-1 text-start">{{ performance.tache.projet.name }}</td>
+                        <td class="px-2 py-1 text-center">{{ performance.tache_effectue }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('update-performance-btn').addEventListener('click', function() {
+        // Send an AJAX request to update the performance
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '{% url "update_performance" %}');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                // Reload the page to reflect the updated performance data
+                location.reload();
+            }
+        };
+        xhr.send();
+    });
+</script>
+
